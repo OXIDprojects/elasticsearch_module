@@ -25,7 +25,7 @@
   },
   "require": {
     "php": ">=7.0",
-    "elastic/elasticsearch-php": "~6.0"
+    "elasticsearch/elasticsearch": "~6.0"
   },
   "extra": {
     "oxideshop": {
