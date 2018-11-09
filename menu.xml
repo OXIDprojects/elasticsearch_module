@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<OX>
+    <OXMENU id="OXCOM_ELASTICSEARCH">
+        <MAINMENU id="oxcom_elastic">
+            <SUBMENU id="oxcom_elastic_status" cl="oxcom_elastic_status_admin_list">
+            </SUBMENU>
+            <SUBMENU id="oxcom_elastic_cron" cl="oxcom_elastic_status_cron_list">
+            </SUBMENU>            
+        </MAINMENU>
+    </OXMENU>
+</OX>
