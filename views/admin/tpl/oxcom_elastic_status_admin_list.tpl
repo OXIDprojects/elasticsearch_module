@@ -11,7 +11,7 @@
     <col width="70%">
     <tr>
         <td>
-            [{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS" }]">
+            [{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS" }]"
         </td>
         <td>
             [{$oxcomstatus}]        
