@@ -22,24 +22,30 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
         $this->_aViewData["sModuleUrl"] = $oViewConf->getModuleUrl('oxcom/elasticsearch');
         return $this->_sThisTemplate;
     }
-    /*
+
+     /*
      *
      */
     public function elasticclient()
     {
         $oViewConf = oxNew(\OxidEsales\Eshop\Core\ViewConfig::class);
-        $sPath = $oViewConf->getModuleUrl('oxcom/elasticsearch');
-     
-        $sLogValue = self::GetModuleConfVar('oxcom_elasticsearch_article_loglevel');
-     
-        $retry = self::GetModuleConfVar('');
-        $logger = ClientBuilder::defaultLogger($sPath.'Logs/', Logger::$sLogValue);
+        $sPath = getcwd().'/../../../Logs/elasticsearch.log';
+
+        $sLogValue = "Monolog\Logger::".self::GetModuleConfVar('oxcom_elasticsearch_article_loglevel');
+        $logger = new Logger('elasticsearchlogging');
+        if ($sLogValue == 'INFO') {
+            $logger->pushHandler(new StreamHandler($sPath, Logger::INFO));
+        } else {
+            $logger->pushHandler(new StreamHandler($sPath, Logger::WARNING));
+        }
+
+        $retry = self::GetModuleConfVar('oxcom_elasticsearch_article_retry');
 
         $host1 = array();
         $host1['host'] = self::GetModuleConfVar('oxcom_elasticsearch_server_host');
         $host1['port'] = self::GetModuleConfVar('oxcom_elasticsearch_server_port');
         $host1['scheme'] = self::GetModuleConfVar('oxcom_elasticsearch_server_scheme');
-     
+
         $sUser = self::GetModuleConfVar('');
         if (!empty($sUser)) {
             $host1['user'] = self::GetModuleConfVar('oxcom_elasticsearch_server_user');    
@@ -51,12 +57,10 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
         }
      
         $hosts = [
-            [
                 $host1
-            ]
         ];
-     
-        $client = Elasticsearch\ClientBuilder::create()->setHosts($hosts)->setLogger($logger)->setRetries($retry)->build();
+
+        $client = ClientBuilder::create()->setHosts($hosts)->setLogger($logger)->setRetries($retry)->build();
         return $client;
     }
  
@@ -65,14 +69,28 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     protected function GetModuleConfVar($var)
     {
-        $allowedConf = [];
+        $allowedConf = [
+            'oxcom_elasticsearch_article_index',
+            'oxcom_elasticsearch_article_data',
+            'oxcom_elasticsearch_article_type',
+            'oxcom_elasticsearch_article_shards',
+            'oxcom_elasticsearch_article_replicas',
+            'oxcom_elasticsearch_article_loglevel',
+            'oxcom_elasticsearch_article_retry',
+            'oxcom_elasticsearch_server_host',
+            'oxcom_elasticsearch_server_port',
+            'oxcom_elasticsearch_server_scheme',
+            'oxcom_elasticsearch_server_user',
+            'oxcom_elasticsearch_server_pass'
+        ];
 
         if (in_array($var, $allowedConf)) {
-            \OxidEsales\Eshop\Core\Registry::getConfig()->getShopConfVar($var, null, 'module:fabasicmodule');
+            return \OxidEsales\Eshop\Core\Registry::getConfig()->getShopConfVar($var, null, 'module:oxcomelasticsearch');
         } else {
             return null;
         }
      }
+ 
  
     /*
      *
