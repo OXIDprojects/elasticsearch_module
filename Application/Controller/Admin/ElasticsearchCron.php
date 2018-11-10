@@ -426,12 +426,12 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
              return 'Bullshit'; 
          }
         
+         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
          $table = getViewName('oxarticles', $Lang);
      
          $sQ = "Select oxid from ".$table." WHERE oxactive = '1' AND oxcomelasticstat= '1' LIMIT ".$Limit;
-         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(); 
-     
-         $resultSet = $oDb::getDb()->select($sQ);
+
+         $resultSet = $oDb->select($sQ);
 
          if ($resultSet != false && $resultSet->count() > 0) {
              while (!$resultSet->EOF) {
