@@ -79,6 +79,12 @@ $aModule = [
             'value' => 'Info'
         ),
         array(
+            'group' => 'oxcomelasticsearchserverarticle',
+            'name'  => 'oxcom_elasticsearch_article_retry',
+            'type'  => 'str',
+            'value' => '2'
+        ),
+        array(
             'group' => 'oxcomelasticsearchserver',
             'name'  => 'oxcom_elasticsearch_server_host',
             'type'  => 'str',
