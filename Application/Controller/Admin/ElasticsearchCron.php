@@ -254,7 +254,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function MarkAllArticle4NewImportOneLang($iLang = '0')
     {
-        $table = getViewName('oxarticles', $iLang);    
+        $table = getViewName('oxarticles', $iLang);
         $sQ = "UPDATE ".$table." SET oxcomelasticstat = '0'; UPDATE ".$table." SET oxcomelasticstat = '1' WHERE oxactive = '1'";
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $oDb->execute($sQ);
@@ -291,7 +291,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function GetArticleData($oxid, $Lang='0')
     {
-        $data = self::GetModuleConfVar('oxcom_elasticsearch_article_data');
+        $adata = self::GetModuleConfVar('oxcom_elasticsearch_article_data');
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         
@@ -372,7 +372,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
         
         }
      
-        return recursiveStripTags($aFinalQuery);
+        return self::recursiveStripTags($aFinalQuery);
      
     }
  
@@ -397,7 +397,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     public function SearchArticleFromElasticsearch($search,$Lang='0')
     {
          // Performance
-         if (!is_array($params)) {
+         if (!is_array($search)) {
              return null;
          }
      
@@ -425,7 +425,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
          if (!is_numeric($Limit)) { 
              return 'Bullshit'; 
          }
-        
+
          $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
          $table = getViewName('oxarticles', $Lang);
      
