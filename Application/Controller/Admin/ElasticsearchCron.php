@@ -134,21 +134,21 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     public function RecreateArticleIndex()
     {
         // Delete Index
-        $info = self::DeleteArticleIndex()
+        $info = self::DeleteArticleIndex();
         
         if ($info->acknowleged <> 1) {
             return 'Index could not be deleted!';
         }  
      
         // Create Index
-        $info = self::CreateArticleIndex()
+        $info = self::CreateArticleIndex();
         
         if ($info->acknowleged <> 1) {
             return 'Index could not be created!';
         }          
      
         // Reset all Articles for new Import
-        $info = self::MarkAllArticle4NewImport()
+        $info = self::MarkAllArticle4NewImport();
         
         if ($info->acknowleged <> 1) {
             return 'Articles were not reseted!';
@@ -163,21 +163,21 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     public function RecreateArticleIndexOneLang($Lang='0')
     {
         // Delete Index
-        $info = self::DeleteArticleIndexOneLang($Lang)
+        $info = self::DeleteArticleIndexOneLang($Lang);
         
         if ($info->acknowleged <> 1) {
             return 'Index could not be deleted!';
         }  
      
         // Create Index
-        $info = self::CreateArticleIndexOneLang($Lang)
+        $info = self::CreateArticleIndexOneLang($Lang);
         
         if ($info->acknowleged <> 1) {
             return 'Index could not be created!';
         }          
      
         // Reset all Articles for new Import
-        $info = self::MarkAllArticle4NewImportOneLang($Lang)
+        $info = self::MarkAllArticle4NewImportOneLang($Lang);
         
         if ($info->acknowleged <> 1) {
             return 'Articles were not reseted!';
