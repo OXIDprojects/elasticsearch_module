@@ -13,7 +13,7 @@ class ElasticsearchStatus extends \OxidEsales\Eshop\Application\Controller\Admin
     public function render()
     {
         parent::render();
-        $this->_aViewData["oxcomstatus"] = elastcisearchstatus();
+        $this->_aViewData["oxcomstatus"] = self::elastcisearchstatus();
         return $this->_sThisTemplate;
     }
  
