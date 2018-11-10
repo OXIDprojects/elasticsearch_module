@@ -3,7 +3,7 @@
 require_once(dirname(__FILE__). "/../../../../bootstrap.php");
 $result = \OxidCommunity\Elasticsearch\Application\Controller\Admin\ElasticsearchCron::CreateArticleIndex();
 
-if ($result[acknowleged] == '1') {
+if ($result['acknowleged'] == '1') {
     echo 'Done';
 } else {
     echo $result;
