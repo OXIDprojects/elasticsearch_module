@@ -254,7 +254,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function MarkAllArticle4NewImportOneLang($iLang = '0')
     {
-        $table = getViewName('oxobject2attribute', $iLang);    
+        $table = getViewName('oxarticles', $iLang);    
         $sQ = "UPDATE ".$table." SET oxcomelasticstat = '0'; UPDATE ".$table." SET oxcomelasticstat = '1' WHERE oxactive = '1'";
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $oDb->execute($sQ);
