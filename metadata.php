@@ -21,7 +21,7 @@ $aModule = [
     'thumbnail'   => '',
     'version'     => '0.0.1',
     'author'      => 'OXID Community',
-    'url'         => 'https://github.com/OXIDprojects/elasticsearch',
+    'url'         => 'https://github.com/OXIDprojects/elasticsearch_module',
     'email'       => '',
     'extend'      => [
     ],
