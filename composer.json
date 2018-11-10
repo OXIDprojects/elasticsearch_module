@@ -18,9 +18,13 @@
     }
   },
   "repositories": {
-    "elastic/elasticsearch-php": {
+    "elasticsearch/elasticsearch": {
       "type": "vcs",
       "url": "https://github.com/elastic/elasticsearch-php.git"
+    },
+    "monolog/monolog": {
+      "type": "vcs",
+      "url": "https://github.com/Seldaek/monolog.git"
     }
   },
   "require": {
