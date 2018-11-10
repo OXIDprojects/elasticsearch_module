@@ -99,7 +99,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     {
         $aLanguages = self::GetAllLang();
         foreach ($aLanguages as $aLang) {
-            self::CreateArticleIndexOneLang($aLang['id']);
+            self::CreateArticleIndexOneLang($aLang->id);
         }    
         return '1';
     } 
@@ -131,7 +131,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     {
         $aLanguages = self::GetAllLang();
         foreach ($aLanguages as $aLang) {
-            self::DeleteArticleIndexOneLang($aLang['id']);
+            self::DeleteArticleIndexOneLang($aLang->id);
         }  
         return '1';
     }  
@@ -225,7 +225,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     {
         $aLanguages = self::GetAllLang();
         foreach ($aLanguages as $aLang) {
-            self::MarkAllArticle4NewImportOneLang($aLang['id']);
+            self::MarkAllArticle4NewImportOneLang($aLang->id);
         }        
         return '1';
     }  
