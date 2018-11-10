@@ -20,10 +20,7 @@ class ElasticsearchStatus extends \OxidEsales\Eshop\Application\Controller\Admin
      public function elastcisearchstatus()
     {
         $client = \OxidCommunity\Elasticsearch\Application\Controller\Admin\ElasticsearchCron::elasticclient();
-        $params = [
-            'local' => true
-        ];
-        $response = $client->cat()->health($params);
+        $response = $client->cat()->health();
         return $response;
     }
 }
