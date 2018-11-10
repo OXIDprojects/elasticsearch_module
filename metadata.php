@@ -34,6 +34,8 @@ $aModule = [
         'onDeactivate' 				=> '\OxidCommunity\Elasticsearch\Core\Events::onDeactivate'
     ],
     'templates'   => [
+        'oxcom_elastic_status_admin_list.tpl' => 'oxcom/elasticsearch/views/admin/tpl/oxcom_elastic_status_admin_list.tpl',
+        'oxcom_elastic_status_cron_list.tpl' => 'oxcom/elasticsearch/views/admin/tpl/oxcom_elastic_status_cron_list.tpl'
     ],
     'settings' => [
         array(
