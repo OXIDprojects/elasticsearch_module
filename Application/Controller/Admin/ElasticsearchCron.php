@@ -1,5 +1,10 @@
 <?php
 namespace OxidCommunity\Elasticsearch\Application\Controller\Admin;
+
+use Elasticsearch\ClientBuilder;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 /**
  * ElasticsearchCron class wrapper 
  */
