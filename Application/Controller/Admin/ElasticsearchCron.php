@@ -90,8 +90,17 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
             return null;
         }
      }
- 
- 
+
+    /*
+     *
+     */
+    public function ExistIndex($index)
+    {
+        $client = self::elasticclient();
+        $indexParams['index']  = $index;
+        return $client->indices()->exists($indexParams);
+     }
+
     /*
      *
      */
@@ -110,6 +119,11 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     public function CreateArticleIndexOneLang($Lang)
     {
          $index = self::GetModuleConfVar('oxcom_elasticsearch_article_index') . "_" . $Lang;
+         $sExist = self::ExistIndex($index);
+         if ($sExist == true) {
+             echo "Index: ".$index." already exists!<br>";
+             return '0';
+         }
          $client = self::elasticclient();
          $params = [
              'index' => $index,
@@ -142,13 +156,18 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function DeleteArticleIndexOneLang($Lang='0')
     {
-         $index = self::GetModuleConfVar('oxcom_elasticsearch_article_index') . "_" . $Lang;
-         $client = self::elasticclient();
-         $params = [
-             'index' => $index
-         ];
-         $response = $client->indices()->delete($params);
-         return $response;
+        $index = self::GetModuleConfVar('oxcom_elasticsearch_article_index') . "_" . $Lang;
+        $sExist = self::ExistIndex($index);
+        if ($sExist == false) {
+            echo "Index: ".$index." does not exists!<br>";
+            return '0';
+        }
+        $client = self::elasticclient();
+        $params = [
+            'index' => $index
+        ];
+        $response = $client->indices()->delete($params);
+        return $response;
     }  
  
      /*
