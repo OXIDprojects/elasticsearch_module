@@ -42,7 +42,7 @@ This module is not for production use at the moment!
 - Security
   -> Cronjobs need a authentification
  
-Improvements 
+# Improvements 
     - Example for search (maybe new module)
     - Filtersystem based on elasticsearch
     - howto: import stoppwords
