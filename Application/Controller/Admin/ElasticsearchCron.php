@@ -85,7 +85,18 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
         ];
 
         if (in_array($var, $allowedConf)) {
-            return \OxidEsales\Eshop\Core\Registry::getConfig()->getShopConfVar($var, null, 'module:oxcomelasticsearch');
+            $data = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopConfVar($var, null, 'module:oxcomelasticsearch');
+            if ($var == 'oxcom_elasticsearch_article_data') {
+                $datafinal = array();
+                foreach ($data as $item => $value)
+                {
+                    $datafinal[$item] = explode(",", $value);
+                }
+                return $datafinal;
+            } else {
+                return $data;
+            }
+
         } else {
             return null;
         }
@@ -175,28 +186,11 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function RecreateArticleIndex()
     {
-        // Delete Index
-        $info = self::DeleteArticleIndex();
-        
-        if ($info->acknowleged <> 1) {
-            return 'Index could not be deleted!';
-        }  
-     
-        // Create Index
-        $info = self::CreateArticleIndex();
-        
-        if ($info->acknowleged <> 1) {
-            return 'Index could not be created!';
-        }          
-     
-        // Reset all Articles for new Import
-        $info = self::MarkAllArticle4NewImport();
-        
-        if ($info->acknowleged <> 1) {
-            return 'Articles were not reseted!';
-        }  else {
-            return '1';
+        $aLanguages = self::GetAllLang();
+        foreach ($aLanguages as $aLang) {
+            self::RecreateArticleIndexOneLang($aLang->id);
         }
+        return '1';
     } 
  
     /*
@@ -206,26 +200,26 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
     {
         // Delete Index
         $info = self::DeleteArticleIndexOneLang($Lang);
-        
-        if ($info->acknowleged <> 1) {
-            return 'Index could not be deleted!';
-        }  
-     
+
         // Create Index
         $info = self::CreateArticleIndexOneLang($Lang);
-        
-        if ($info->acknowleged <> 1) {
-            return 'Index could not be created!';
-        }          
+
+        if (!empty($info)) {
+            echo 'Index was created!<br>';
+        } else {
+            echo 'Something went wrong!<br>';
+            return null;
+        }
      
         // Reset all Articles for new Import
         $info = self::MarkAllArticle4NewImportOneLang($Lang);
-        
-        if ($info->acknowleged <> 1) {
-            return 'Articles were not reseted!';
+
+        if ($info == '1') {
+            echo 'Articles were reseted and should be reimported!<br>';
         }  else {
-            return '1';
+            echo 'Articles were not reseted!<br>';
         }
+
     }   
 
      /*
@@ -266,25 +260,44 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function IndexArticle2Elasticsearch($oxid,$Lang = '0')
     {
-         $client = self::elasticclient();
-     
-         //doesn't work! first article needs all parameters
-         //$oxarticle = oxNew(\OxidEsales\Eshop\Application\Model\Article::class);    
-         //$oxarticle->load($oxid);    
-     
-         $oxarticle = self::GetArticleData($oxid, $Lang);
-     
-         $params = [
-             'index' => self::GetModuleConfVar('oxcom_elasticsearch_article_index'),
-             'type'  => self::GetModuleConfVar('oxcom_elasticsearch_article_type'),
-             'id'    => $oxid,
-             'body'  => [
-                 (array) $oxarticle
-             ]
-         ];
+        $client = self::elasticclient();
+
+        //doesn't work! first article needs all parameters
+        //$oxarticle = oxNew(\OxidEsales\Eshop\Application\Model\Article::class);
+        //$oxarticle->load($oxid);
+
+        $index = self::GetModuleConfVar('oxcom_elasticsearch_article_index')."_".$Lang;
+        $type = self::GetModuleConfVar('oxcom_elasticsearch_article_type');
+        $id = self::md5_hex_to_dec($oxid);
+        $data = self::GetArticleData($oxid, $Lang);
+
+        $params = [
+            'index' => $index,
+            'type' => $type,
+            'id' => $id,
+            'body' => $data
+        ];
+
          $response = $client->index($params);
-         return $response;
-    } 
+         if (!empty($response)) {
+             return '1';
+         } else {
+             return '0';
+         }
+    }
+
+    /*
+     *
+     */
+    public function md5_hex_to_dec($hex_str)
+    {
+        $arr = str_split($hex_str, 4);
+        foreach ($arr as $grp) {
+            $dec[] = str_pad(hexdec($grp), 5, '0', STR_PAD_LEFT);
+        }
+        return implode('', $dec);
+    }
+
 
     /*
      *
@@ -318,25 +331,22 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
                     }
                 }
                 $sQ .= " FROM ".$table." WHERE ".$param[2]."=".$oDb->quote($oxid);
+
         
                 $resultSet = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC)->select($sQ);
                 //Fetch the results row by row
                 if ($resultSet != false && $resultSet->count() > 0) {
                     while (!$resultSet->EOF) {
                         $row = $resultSet->getFields();
-        
-                        if($table == 'oxarticles') {
-                            $aFinalQuery = $row;
-                        } else {
-                            $aFinalQuery[$table] = $row;
-                        }
-        
+
+                        $aFinalQuery += self::GetArticleDataProcessGeneratedQuerys($table,$row);
+
                         $resultSet->fetchRow();
                     }
                 }
                 continue;
             }
-        
+
             if ($param[0] == 'column') {
                 $sQ = "SELECT ";
                 $sQD = "Select ".$table.".".$param[1]." as col FROM ".$table." GROUP BY ".$table.".".$param[1];
@@ -360,8 +370,8 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
                 if ($resultSet != false && $resultSet->count() > 0) {
                     while (!$resultSet->EOF) {
                         $row = $resultSet->getFields();
-        
-                        $aFinalQuery[$table] = $row;
+
+                        $aFinalQuery += self::GetArticleDataProcessGeneratedQuerys($table,$row);
         
                         $resultSet->fetchRow();
                     }
@@ -371,18 +381,51 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
             }
         
         }
-     
-        return self::recursiveStripTags($aFinalQuery);
-     
+
+        //Strip Tags
+        $aReturnData = self::recursiveStripTags($aFinalQuery);
+        //Cleanup corrupt MySQL-Data and return
+        return self::recursiveStripCorruptData($aReturnData);
+
     }
- 
+
+    /*
+    *
+    */
+    public function GetArticleDataProcessGeneratedQuerys($table,$data)
+    {
+        $aFinalData = array();
+
+        foreach ($data as $key => $value) {
+            $aFinalData[$table."__".$key] = $value;
+        }
+
+        return $aFinalData;
+    }
+
+    /*
+     *
+     */
+    public function recursiveStripCorruptData($data) {
+        $aFinalData = array();
+        $abadData = array('0000-00-00','0000-00-00 00:00:00');
+        foreach ($data as $key => $value) {
+            if(in_array($value, $abadData)) {
+                continue;
+            } else {
+                $aFinalData[$key] = $value;
+            }
+        }
+        return $data;
+    }
+
     /*
      *
      */
     public function recursiveStripTags($data) {
         foreach ($data as $key => $value) {
             if(is_array($value)) {
-                $data[$key] = recursiveStripTags($value);
+                $data[$key] = self::recursiveStripTags($value);
             }
             else {
                 $data[$key] = trim(preg_replace('/\s+/', ' ', strip_tags($value)));
@@ -420,7 +463,7 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
      /*
      *
      */
-    public function CronAddArticle2Index($Limit, $Lang='0')
+    public function CronAddArticle2IndexOneLang($Limit, $Lang='0')
     {
          if (!is_numeric($Limit)) { 
              return 'Bullshit'; 
@@ -436,21 +479,38 @@ class ElasticsearchCron extends \OxidEsales\Eshop\Application\Controller\Admin\A
          if ($resultSet != false && $resultSet->count() > 0) {
              while (!$resultSet->EOF) {
                  $row = $resultSet->getFields();
-                 $final = self::IndexArticle2Elasticsearch($row['oxid']);
+                 $final = self::IndexArticle2Elasticsearch($row[0]);
                  if ($final == '1') {
-                    $sFinalQ = "UPDATE ".$table." SET oxcomelasticstat= '0' WHERE oxid=".$oDb->quote($row['oxid']);
-                    $oDb::getDb()->execute($sQ);
+                    $sFinalQ = "UPDATE ".$table." SET oxcomelasticstat= '0' WHERE oxid=".$oDb->quote($row[0]);
+                    $oDb->execute($sFinalQ);
                  }
                  $resultSet->fetchRow();
              }
           }
     
           $sQ2 = "Select oxid from ".$table." WHERE oxactive = '1' AND oxcomelasticstat= '1' LIMIT 1";
-          $resultSet2 = $oDb::getDb()->select($sQ2);
-          if ($resultSet != false && $resultSet->count() > 0) {
-              return '0';
-          } else {
+          $resultSet2 = $oDb->select($sQ2);
+          if ($resultSet2 != false && $resultSet2->count() > 0) {
               return '1';
+          } else {
+              return '0';
           }
-    } 
+    }
+
+    /*
+    *
+    */
+    public function CronAddArticle2Index($Limit)
+    {
+        $aLanguages = self::GetAllLang();
+        $sReturn = 0;
+        foreach ($aLanguages as $aLang) {
+            $sReturn = $sReturn + self::CronAddArticle2IndexOneLang($Limit,$aLang->id);
+        }
+        if ($sReturn > '0') {
+            return '0';
+        } else {
+            return '1';
+        }
+    }
 }

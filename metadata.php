@@ -48,11 +48,10 @@ $aModule = [
             'group' => 'oxcomelasticsearchserverarticle',
             'name'  => 'oxcom_elasticsearch_article_data',
             'type'  => 'aarr',
-            'value' => array(
-                           'oxarticles' => array('row','all','oxid'),
-                           'oxobject2attribute' => array('column','oxattrid','oxvalue','oxobjectid'),
-                           'oxartextends' => array('row',array('oxlongdesc'),'oxid'),
-                       )
+            'value' =>  array('oxarticles'         => 'row,all,oxid',
+                              'oxobject2attribute' => 'column,oxattrid,oxvalue,oxobjectid',
+                              'oxartextends'       => 'row,oxlongdesc,oxid'
+                       ),
         ),
         array(
             'group' => 'oxcomelasticsearchserverarticle',
@@ -64,13 +63,13 @@ $aModule = [
             'group' => 'oxcomelasticsearchserverarticle',
             'name'  => 'oxcom_elasticsearch_article_shards',
             'type'  => 'str',
-            'value' => '2'
+            'value' => '5'
         ),
         array(
             'group' => 'oxcomelasticsearchserverarticle',
             'name'  => 'oxcom_elasticsearch_article_replicas',
             'type'  => 'str',
-            'value' => '0'
+            'value' => '1'
         ),        
         array(
             'group' => 'oxcomelasticsearchserverarticle',

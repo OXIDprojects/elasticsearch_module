@@ -7,22 +7,23 @@
 <p style="height="20px;">&nbsp;</p>
 
 <table>
-    <col width="100px">
-    <col width="40px">
-    <col width="100px">
     <tr>
-        <td>
-            <h2>[{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS" }]<h2>
+        <td style="padding-right: 25px;">
+            <h2>[{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS" }]:<h2>
         </td>
         <td>
             [{if $oxcomstatus.0.status eq "green"}]
                 <span style="height: 25px; width: 25px; background-color: green; border-radius: 50%; display: inline-block;"></span>
                 </td>
                  <td>[{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS_OK" }]
+            [{elseif $oxcomstatus.0.status eq "yellow"}]
+                <span style="height: 25px; width: 25px; background-color: yellow; border-radius: 50%; display: inline-block;"></span>
+                </td>
+                <td>[{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS_WARNING" }]
             [{else}]
                 <span style="height: 25px; width: 25px; background-color: red; border-radius: 50%; display: inline-block;"></span>
                 </td>
-                <td>[{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS_FAIL" }]
+        <td>[{ oxmultilang ident="OXCOM_ELASTICSEARCH_STATUS_FAIL" }]
             [{/if}]
         </td>
     </tr>

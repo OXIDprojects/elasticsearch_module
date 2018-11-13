@@ -1,12 +1,15 @@
 <?php
 namespace OxidCommunity\Elasticsearch\Application\Controller\Admin;
+
+use Elasticsearch\ClientBuilder;
+
 /**
- * Order class wrapper 
+ *  class wrapper
  */
- 
 class ElasticsearchStatus extends \OxidEsales\Eshop\Application\Controller\Admin\AdminController
 {
     protected $_sThisTemplate = "oxcom_elastic_status_admin_list.tpl";
+
     /*
      *
      */
@@ -16,11 +19,15 @@ class ElasticsearchStatus extends \OxidEsales\Eshop\Application\Controller\Admin
         $this->_aViewData["oxcomstatus"] = self::elastcisearchstatus();
         return $this->_sThisTemplate;
     }
- 
+
+    /*
+     *
+     */
      public function elastcisearchstatus()
     {
         $client = \OxidCommunity\Elasticsearch\Application\Controller\Admin\ElasticsearchCron::elasticclient();
         $response = $client->cat()->health();
         return $response;
     }
+
 }
